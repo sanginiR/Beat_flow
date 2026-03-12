@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beat flow · your tamil music app</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        /* Theme variables - light mode default */
+        :root {
+            --bg-body: #e8dfff;
+            --bg-app: #ffffff;
+            --bg-dashboard: #fbfaff;
+            --text-primary: #2d1b4b;
+            --text-secondary: #3c2e4f;
+            --text-muted: #7f6a9b;
+            --text-light: #9b85c2;
+            --border-light: #d9c1ff;
+            --border-soft: #eeddff;
+            --card-bg: #ffffff;
+            --card-hover: #f5edff;
+            --nav-hover: #f0e7ff;
+            --nav-active: #e6d4ff;
+            --playbar-bg: #f4edff;
+            --playbar-border: #decbff;
+            --icon-color: #ac92d1;
+            --icon-hover: #401d6b;
+            --toast-bg: #9f88ce;
+            --shadow: rgba(110, 70, 180, 0.2);
+            --header-gradient: linear-gradient(145deg, #1f1730, #3f2b5c, #6b4e8f);
+        }
+
+        /* Dark theme variables */
+        body.dark-theme {
+            --bg-body: #1a1428;
+            --bg-app: #2a1f3a;
+            --bg-dashboard: #231b30;
+            --text-primary: #e9dfff;
+            --text-secondary: #d4c0f0;
+            --text-muted: #b39ddb;
+            --text-light: #c5b0e0;
+            --border-light: #4a3a60;
+            --border-soft: #3f3250;
+            --card-bg: #2f2542;
+            --card-hover: #3f3255;
+            --nav-hover: #3a2e4a;
+            --nav-active: #4a3a68;
+            --playbar-bg: #2a1f3a;
+            --playbar-border: #4a3a60;
+            --icon-color: #b39ddb;
+            --icon-hover: #d4c0f0;
+            --toast-bg: #6b4f9e;
+            --shadow: rgba(0, 0, 0, 0.4);
+            --header-gradient: linear-gradient(145deg, #0f0b18, #251e30, #3a2a4a);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body {
+            background: var(--bg-body);
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; padding: 24px 24px 100px 24px; position: relative;
+            transition: background-color 0.3s;
+        }
+        .app {
+            max-width: 1440px; width: 100%; background: var(--bg-app);
+            border-radius: 32px 32px 24px 24px;
+            box-shadow: 0 20px 40px -10px var(--shadow);
+            display: flex; flex-direction: column;
+            border: 1px solid var(--border-light); overflow: hidden;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        /* Header */
+        .header {
+            height: 200px; width: 100%; padding: 24px 32px;
+            border-bottom: 1px solid var(--border-soft);
+            display: flex; align-items: center; justify-content: space-between;
+            position: relative;
+            background: var(--header-gradient);
+            overflow: hidden;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .header::before {
+            content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
+            background: repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,255,255,0.03) 20px, rgba(255,255,255,0.03) 40px),
+                        repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(255,215,255,0.04) 15px, rgba(255,215,255,0.04) 30px),
+                        radial-gradient(circle at 30% 50%, rgba(255,230,255,0.1) 0%, transparent 30%),
+                        radial-gradient(circle at 70% 30%, rgba(200,180,255,0.15) 0%, transparent 40%);
+            z-index: 0;
+        }
+        .header::after {
+            content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.25); z-index:1;
+        }
+        .header > * { position: relative; z-index:2; }
+        .header h1 {
+            font-weight:700; font-size:36px; letter-spacing:-0.5px;
+            background: linear-gradient(135deg,#ffffff,#f0e0ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            line-height:1.2; margin-bottom:4px; text-shadow:0 2px 5px rgba(0,0,0,0.5);
+        }
+        .header .slogan {
+            font-size:18px; font-weight:400; color:#ffffff;
+            text-shadow:0 1px 3px rgba(0,0,0,0.6); margin-top:2px; letter-spacing:0.2px;
+        }
+        .header-right { display:flex; align-items:center; gap:20px; }
+        .header-profile-img {
+            width: 48px; height: 48px; border-radius: 50%; object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.5); background-color: #b28aff; cursor: pointer;
+        }
+        .header-profile-img[src=""] { display: none; }
+        .header-profile-img:not([src=""]) + .header-user-icon { display: none; }
+        .header-user-icon {
+            font-size:42px; color:#ffffff; cursor:pointer;
+            background:rgba(0,0,0,0.2); border-radius:50%; padding:4px; backdrop-filter:blur(2px);
+        }
+        .theme-toggle {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 40px; padding: 8px 16px; color: white; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; font-size: 14px; backdrop-filter: blur(4px);
+            transition: background 0.3s;
+        }
+        .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+
+        /* Dashboard grid */
+        .dashboard {
+            display: grid; grid-template-columns: 260px 1fr 280px; gap:20px;
+            padding:32px 32px 32px 32px; background: var(--bg-dashboard);
+            transition: background-color 0.3s;
+        }
+
+        /* left sidebar */
+        .sidebar { display: flex; flex-direction: column; gap: 20px; }
+        .section-title {
+            font-size:13px; text-transform:uppercase; letter-spacing:0.5px;
+            font-weight:600; color: var(--text-light); margin-bottom:8px;
+            transition: color 0.3s;
+        }
+        .nav-list { list-style:none; display:flex; flex-direction:column; gap:4px; }
+        .nav-item, .sub-item {
+            display:flex; align-items:center; gap:12px; padding:8px 12px;
+            border-radius:14px; font-weight:500; font-size:15px; color: var(--text-secondary);
+            transition:0.15s, background-color 0.3s, color 0.3s; cursor:pointer;
+        }
+        .nav-item i, .sub-item i { width:20px; font-size:1rem; color: var(--icon-color); transition: color 0.3s; }
+        .nav-item:hover, .sub-item:hover { background: var(--nav-hover); color: var(--text-primary); }
+        .nav-item.active, .sub-item.active { background: var(--nav-active); color: var(--text-primary); font-weight:600; }
+        .indent { margin-left:24px; width:calc(100% - 24px); }
+
+        /* Profile section in sidebar */
+        .profile-section {
+            background: var(--card-bg); border-radius: 24px; padding: 16px;
+            border: 1px solid var(--border-soft); box-shadow: 0 4px 12px var(--shadow);
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
+        }
+        .profile-avatar {
+            width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
+            border: 3px solid var(--icon-color); background-color: var(--icon-color);
+        }
+        .profile-name { font-weight: 600; font-size: 18px; color: var(--text-primary); }
+        .profile-email { font-size: 13px; color: var(--text-muted); }
+        .profile-edit-btn {
+            background: var(--nav-hover); border: 1px solid var(--border-light);
+            border-radius: 30px; padding: 8px 16px; font-size: 14px; color: var(--text-primary);
+            cursor: pointer; transition: 0.1s; display: flex; align-items: center; gap: 8px;
+        }
+        .profile-edit-btn:hover { background: var(--nav-active); }
+
+        /* main content area */
+        .main-col { display:flex; flex-direction:column; gap:36px; transition:0.2s; }
+
+        /* search bar */
+        .search-container {
+            background: var(--card-bg); border-radius: 48px; padding: 4px 4px 4px 20px;
+            border: 1.5px solid var(--border-light); display: flex; align-items: center;
+            box-shadow: 0 6px 14px var(--shadow); margin-bottom: 10px;
+            transition: 0.15s, background-color 0.3s, border-color 0.3s;
+        }
+        .search-container:focus-within { border-color: #b28aff; box-shadow: 0 6px 16px rgba(135,90,210,0.2); }
+        .search-icon { color: var(--icon-color); font-size: 1rem; margin-right: 10px; transition: color 0.3s; }
+        .search-container input {
+            flex: 1; border: none; outline: none; background: transparent; font-size: 16px;
+            font-weight: 500; padding: 12px 0; color: var(--text-primary); transition: color 0.3s;
+        }
+        .search-container input::placeholder { color: var(--text-light); font-weight: 400; }
+        .voice-btn {
+            background: var(--nav-hover); border: none; border-radius: 50%; width: 46px; height: 46px;
+            display: flex; align-items: center; justify-content: center; color: var(--text-secondary);
+            font-size: 1.3rem; cursor: pointer; transition: 0.1s, background-color 0.3s, color 0.3s;
+            border: 1px solid var(--border-light);
+        }
+        .voice-btn:hover { background: var(--nav-active); color: var(--text-primary); transform: scale(1.02); }
+        .voice-btn.listening { background: #cbb2ff; color: #2c0b5e; box-shadow: 0 0 0 3px rgba(170,130,240,0.5); }
+
+        .section-header {
+            font-size:18px; font-weight:700; color: var(--text-primary); margin-bottom:16px;
+            display:flex; align-items:center; justify-content:space-between; transition: color 0.3s;
+        }
+        .section-header i { color: var(--icon-color); font-size:1rem; transition: color 0.3s; }
+
+        .release-list { display:flex; flex-direction:column; gap:4px; }
+        .release-row {
+            display:flex; align-items:center; padding:10px 12px; border-radius:18px;
+            background: var(--card-bg); transition:0.15s, background-color 0.3s, border-color 0.3s; cursor:pointer;
+            border:1px solid var(--border-soft); margin-bottom:2px; box-shadow:0 2px 6px var(--shadow);
+        }
+        .release-row:hover { background: var(--card-hover); border-color: var(--border-light); }
+        .cover-img {
+            width:40px; height:40px; border-radius:8px; background-size:cover; background-position:center;
+            margin-right:12px; flex-shrink:0; background-color:#b28aff;
+        }
+        .release-info { flex:1; }
+        .release-title { font-weight:600; font-size:16px; color: var(--text-primary); transition: color 0.3s; }
+        .release-artist { font-size:13px; color: var(--text-muted); margin-top:2px; transition: color 0.3s; }
+        .release-badge {
+            background: var(--nav-hover); border-radius:30px; padding:4px 12px; font-size:12px;
+            font-weight:500; color: var(--text-secondary); transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* artist grid */
+        .artist-grid {
+            display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:8px;
+        }
+        .artist-card {
+            background: var(--card-bg); border-radius:18px; padding:16px; text-align:center;
+            border:1px solid var(--border-soft); cursor:pointer; transition:0.15s, background-color 0.3s, border-color 0.3s;
+        }
+        .artist-card:hover { background: var(--card-hover); border-color: var(--border-light); }
+        .artist-avatar {
+            width:70px; height:70px; border-radius:50%; margin:0 auto 10px;
+            background-size:cover; background-position:center; background-color:#b28aff;
+        }
+        .artist-name { font-weight:600; font-size:15px; color: var(--text-primary); transition: color 0.3s; }
+        .artist-era { font-size:12px; color: var(--text-muted); margin-top:4px; transition: color 0.3s; }
+
+        /* right column */
+        .right-col { display:flex; flex-direction:column; gap:32px; }
+        .activity-list {
+            background: var(--card-bg); border-radius:24px; padding:8px 4px;
+            border:1px solid var(--border-soft); box-shadow:0 4px 12px var(--shadow);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .activity-item {
+            display:flex; align-items:center; gap:12px; padding:12px 16px;
+            border-radius:20px; cursor:pointer; transition:0.1s, background-color 0.3s;
+        }
+        .activity-item:hover { background: var(--nav-hover); }
+        .activity-avatar {
+            width:36px; height:36px; background: var(--nav-hover); border-radius:50%;
+            display:flex; align-items:center; justify-content:center; font-weight:600; color: var(--text-secondary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .activity-detail { flex:1; }
+        .activity-name { font-weight:600; font-size:15px; color: var(--text-primary); transition: color 0.3s; }
+        .activity-desc { font-size:12px; color: var(--text-muted); margin-top:2px; transition: color 0.3s; }
+        .timestamp { font-size:11px; color: var(--icon-color); transition: color 0.3s; }
+
+        /* playbar */
+        .playbar {
+            position:fixed; bottom:0; left:0; width:100%; background: var(--playbar-bg);
+            border-top:1px solid var(--playbar-border); padding:12px 32px;
+            display:flex; align-items:center; gap:24px; flex-wrap:wrap;
+            box-shadow:0 -4px 20px var(--shadow); z-index:1000; backdrop-filter:blur(8px);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .now-playing { display:flex; align-items:center; gap:12px; min-width:180px; cursor:pointer; }
+        .now-playing .thumb {
+            width:48px; height:48px; border-radius:10px; background-size:cover; background-position:center;
+            flex-shrink:0; background-color:#b28aff;
+        }
+        .track-info { display:flex; flex-direction:column; }
+        .track-name { font-weight:600; font-size:15px; color: var(--text-primary); transition: color 0.3s; }
+        .track-artist { font-size:12px; color: var(--text-muted); transition: color 0.3s; }
+        .player-controls { display:flex; align-items:center; gap:16px; }
+        .player-controls i {
+            font-size:1.3rem; color: var(--icon-color); cursor:pointer; transition:0.1s, color 0.3s;
+        }
+        .player-controls i:hover { color: var(--icon-hover); }
+        .player-controls .fa-play-circle, .player-controls .fa-pause-circle {
+            font-size:2.2rem; color: var(--icon-color);
+        }
+        .progress-area { flex:2; min-width:200px; display:flex; align-items:center; gap:12px; }
+        .progress-area span { font-size:13px; color: var(--text-muted); transition: color 0.3s; }
+        .progress-bar {
+            flex:1; height:5px; background: var(--border-light); border-radius:10px; appearance:none; cursor:pointer;
+            transition: background-color 0.3s;
+        }
+        .progress-bar::-webkit-slider-thumb {
+            appearance:none; width:14px; height:14px; background: var(--icon-color); border-radius:50%; box-shadow:0 0 4px var(--shadow);
+            transition: background-color 0.3s;
+        }
+        .volume-area { display:flex; align-items:center; gap:10px; }
+        .volume-area i { color: var(--icon-color); cursor:pointer; transition: color 0.3s; }
+        .volume-slider { width:80px; height:5px; background: var(--border-light); border-radius:10px; appearance:none; transition: background-color 0.3s; }
+        .volume-slider::-webkit-slider-thumb {
+            appearance:none; width:12px; height:12px; background: var(--icon-color); border-radius:50%;
+            transition: background-color 0.3s;
+        }
+        .like-btn { color: var(--icon-color); cursor:pointer; transition:0.1s, color 0.3s; margin-left:8px; }
+        .like-btn.liked { color: #f57c8c; }
+
+        /* toast & modal */
+        .toast {
+            position:fixed; bottom:100px; right:30px; background: var(--toast-bg); color:white;
+            padding:12px 28px; border-radius:40px; font-weight:500; font-size:15px;
+            box-shadow:0 8px 20px var(--shadow); border-left:4px solid #dac0ff;
+            opacity:0; transform:translateY(10px); transition:0.2s ease; pointer-events:none;
+            z-index:1001; backdrop-filter:blur(4px); border:1px solid #d3bcf5;
+        }
+        .toast.show { opacity:1; transform:translateY(0); }
+        .clickable { cursor:pointer; }
+
+        .modal {
+            display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:2000;
+        }
+        .modal.active { display:flex; }
+        .modal-content {
+            background: var(--bg-app); border-radius:32px; padding:24px; width:500px; max-height:80vh; overflow-y:auto;
+            box-shadow:0 20px 40px rgba(0,0,0,0.3); transition: background-color 0.3s;
+        }
+        .modal-content h3 { margin-bottom:16px; color: var(--text-primary); transition: color 0.3s; }
+        .modal-tabs {
+            display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border-soft);
+        }
+        .modal-tab {
+            padding: 10px 20px; cursor: pointer; border-radius: 30px 30px 0 0;
+            color: var(--text-secondary); transition: 0.1s;
+        }
+        .modal-tab.active {
+            background: var(--nav-active); color: var(--text-primary); font-weight: 600;
+        }
+        .modal-tab-content { display: none; }
+        .modal-tab-content.active { display: block; }
+
+        .friend-list {
+            list-style: none; max-height: 200px; overflow-y: auto; border: 1px solid var(--border-soft); border-radius: 16px; padding: 8px;
+        }
+        .friend-item {
+            display: flex; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-soft);
+        }
+        .friend-item:last-child { border-bottom: none; }
+        .friend-avatar {
+            width: 32px; height: 32px; border-radius: 50%; background: var(--icon-color); margin-right: 10px;
+        }
+        .friend-name { flex: 1; font-weight: 500; color: var(--text-primary); }
+        .friend-status { font-size: 12px; color: var(--text-muted); }
+        .add-friend-input {
+            width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--border-light); border-radius: 30px;
+            background: var(--card-bg); color: var(--text-primary);
+        }
+        .invite-link {
+            background: var(--nav-hover); padding: 10px; border-radius: 30px; text-align: center; margin: 10px 0;
+            color: var(--text-primary); border: 1px solid var(--border-light);
+        }
+        .chat-messages {
+            height: 200px; overflow-y: auto; border: 1px solid var(--border-soft); border-radius: 16px; padding: 10px; margin-bottom: 10px;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .chat-message {
+            background: var(--nav-hover); padding: 8px 12px; border-radius: 18px; max-width: 80%; align-self: flex-start;
+            color: var(--text-primary);
+        }
+        .chat-message.own {
+            background: var(--nav-active); align-self: flex-end;
+        }
+        .chat-input-area {
+            display: flex; gap: 10px;
+        }
+        .chat-input {
+            flex: 1; padding: 10px; border: 1px solid var(--border-light); border-radius: 30px;
+            background: var(--card-bg); color: var(--text-primary);
+        }
+        .chat-send {
+            background: var(--icon-color); border: none; border-radius: 50%; width: 40px; height: 40px;
+            color: white; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <!-- Header -->
+    <div class="header">
+        <div><h1><i class="fas fa-music"></i> Beat flow</h1><span class="slogan"><i class="fas fa-heart"></i> your tamil music app</span></div>
+        <div class="header-right">
+            <div class="theme-toggle clickable" id="themeToggle">
+                <i class="fas fa-moon"></i><span>Dark</span>
+            </div>
+            <img src="" alt="profile" class="header-profile-img" id="headerProfileImg">
+            <i class="fas fa-user-circle fa-2x header-user-icon" id="headerUserIcon"></i>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard">
+        <!-- LEFT SIDEBAR -->
+        <div class="sidebar">
+            <!-- User Profile -->
+            <div class="profile-section">
+                <img src="" alt="profile" class="profile-avatar" id="profileAvatar">
+                <div class="profile-name" id="profileName">Guest User</div>
+                <div class="profile-email" id="profileEmail">guest@example.com</div>
+                <div class="profile-edit-btn clickable" id="editProfileBtn">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </div>
+            </div>
+
+            <div>
+                <div class="section-title"><i class="fas fa-compass"></i> RECOMMENDED</div>
+                <ul class="nav-list">
+                    <li class="nav-item clickable" id="forYouBtn"><i class="fas fa-star"></i> For you</li>
+                    <li class="nav-item indent clickable" id="libraryBtn"><i class="fas fa-book-open"></i> Library</li>
+                    <li class="nav-item clickable" id="hits2000sBtn"><i class="fas fa-compact-disc"></i> 2000s</li>
+                    <li class="nav-item clickable" id="hits90sBtn"><i class="fas fa-record-vinyl"></i> 90s</li>
+                    <li class="nav-item clickable" id="hits80sBtn"><i class="fas fa-cassette"></i> 80s</li>
+                </ul>
+            </div>
+            <div>
+                <div class="section-title"><i class="fas fa-headphones-alt"></i> MY MUSIC</div>
+                <ul class="nav-list">
+                    <li class="nav-item clickable" id="likedSongsBtn"><i class="fas fa-heart" style="color:#f57c8c;"></i> Liked Songs</li>
+                    <li class="nav-item clickable" id="artistsBtn"><i class="fas fa-microphone-alt"></i> Artists</li>
+                    <li class="nav-item" style="cursor:default; background:none;"><i class="fas fa-album"></i> Albums</li>
+                    <li class="sub-item indent clickable" id="createPlaylistBtn"><i class="fas fa-plus"></i> Create Playlist</li>
+                </ul>
+            </div>
+            <div id="userPlaylistsContainer">
+                <div class="section-title"><i class="fas fa-list"></i> YOUR PLAYLISTS</div>
+                <div id="userPlaylistsList" class="nav-list"></div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-col" id="mainContent"></div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="right-col">
+            <div>
+                <div class="section-header">
+                    <span><i class="fas fa-user-friends"></i> Friends Activity</span>
+                    <i class="fas fa-ellipsis-h clickable" id="friendsActivityDots"></i>
+                </div>
+                <div class="activity-list" id="friendsActivityList"></div>
+            </div>
+            <div>
+                <div class="section-header"><i class="fas fa-waveform"></i> Your Activity</div>
+                <div class="activity-list" id="recentActivityList">
+                    <div class="activity-item" style="justify-content:center; color:var(--text-muted);">No recent activity</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mini Playbar -->
+<div class="playbar">
+    <div class="now-playing" id="miniNowPlaying">
+        <div class="thumb" id="playbarThumb"></div>
+        <div class="track-info">
+            <span class="track-name" id="playbarTrack">Vaathi Coming</span>
+            <span class="track-artist" id="playbarArtist">Anirudh, Gana Balachandar</span>
+        </div>
+        <i class="far fa-heart like-btn clickable" id="likeBtn"></i>
+    </div>
+    <div class="player-controls">
+        <i class="fas fa-shuffle clickable" id="shuffleBtn" data-action="Shuffle"></i>
+        <i class="fas fa-backward-step clickable" id="prevBtn" data-action="Previous"></i>
+        <i class="fas fa-play-circle clickable" id="playPauseBtn" data-action="Play"></i>
+        <i class="fas fa-forward-step clickable" id="nextBtn" data-action="Next"></i>
+        <i class="fas fa-repeat clickable" id="repeatBtn" data-action="Repeat"></i>
+    </div>
+    <div class="progress-area">
+        <span id="currentTime">0:00</span>
+        <input type="range" class="progress-bar" id="progressBar" value="0" max="100" step="0.1">
+        <span id="duration">3:45</span>
+    </div>
+    <div class="volume-area">
+        <i class="fas fa-volume-high clickable" id="volumeIcon" data-action="Volume"></i>
+        <input type="range" class="volume-slider" id="volumeSlider" value="70" max="100" step="1">
+    </div>
+    <i class="fas fa-expand clickable" id="fullscreenBtn" data-action="Fullscreen"></i>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast">🎵 tamil flow</div>
+
+<!-- Create Playlist Modal -->
+<div class="modal" id="playlistModal">
+    <div class="modal-content">
+        <h3>Create New Playlist</h3>
+        <input type="text" id="playlistNameInput" class="modal-input" placeholder="Playlist name">
+        <div class="modal-song-list" id="modalSongList"></div>
+        <div class="modal-buttons">
+            <button id="cancelPlaylistBtn">Cancel</button>
+            <button class="primary" id="savePlaylistBtn">Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal" id="profileModal">
+    <div class="modal-content">
+        <h3>Edit Profile</h3>
+        <input type="text" id="profileNameInput" class="modal-input" placeholder="Your name" value="Guest User">
+        <input type="email" id="profileEmailInput" class="modal-input" placeholder="Your email" value="guest@example.com">
+        <div class="file-input-wrapper">
+            <input type="file" id="profileImageInput" accept="image/*">
+            <label for="profileImageInput" class="file-input-label"><i class="fas fa-camera"></i> Choose profile picture</label>
+        </div>
+        <img src="" alt="preview" class="profile-preview" id="profilePreview">
+        <div class="modal-buttons">
+            <button id="cancelProfileBtn">Cancel</button>
+            <button class="primary" id="saveProfileBtn">Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Friends Activity Modal -->
+<div class="modal" id="friendsModal">
+    <div class="modal-content">
+        <h3><i class="fas fa-user-friends"></i> Friends & Chat</h3>
+        <div class="modal-tabs">
+            <div class="modal-tab active" data-tab="friends">Friends</div>
+            <div class="modal-tab" data-tab="invite">Invite</div>
+            <div class="modal-tab" data-tab="chat">Chat</div>
+        </div>
+        <!-- Friends Tab -->
+        <div class="modal-tab-content active" id="friendsTab">
+            <h4>Your Friends</h4>
+            <ul class="friend-list" id="friendList"></ul>
+            <input type="text" class="add-friend-input" id="addFriendInput" placeholder="Enter username to add">
+            <button class="modal-buttons primary" id="addFriendBtn">Add Friend</button>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:10px;">Available users: anna, joe, ravi, divya, karthik, priya, arjun</p>
+        </div>
+        <!-- Invite Tab -->
+        <div class="modal-tab-content" id="inviteTab">
+            <h4>Invite a Friend</h4>
+            <p>Share this link with your friends:</p>
+            <div class="invite-link" id="inviteLink">https://beatflow.app/invite/abc123</div>
+            <button class="modal-buttons primary" id="copyInviteBtn">Copy Link</button>
+        </div>
+        <!-- Chat Tab -->
+        <div class="modal-tab-content" id="chatTab">
+            <h4>Music Chat Room</h4>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Type a message...">
+                <button class="chat-send" id="chatSendBtn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ----- Theme Management -----
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('beatflow_theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-theme');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i><span>Light</span>';
+        }
+        themeToggle.addEventListener('click', () => {
+            if (document.body.classList.contains('dark-theme')) {
+                document.body.classList.remove('dark-theme');
+                localStorage.setItem('beatflow_theme', 'light');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i><span>Dark</span>';
+            } else {
+                document.body.classList.add('dark-theme');
+                localStorage.setItem('beatflow_theme', 'dark');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i><span>Light</span>';
+            }
+        });
+
+        // ----- UI Elements -----
+        const toast = document.getElementById('toast');
+        const mainContent = document.getElementById('mainContent');
+        const playbarThumb = document.getElementById('playbarThumb');
+        const playbarTrack = document.getElementById('playbarTrack');
+        const playbarArtist = document.getElementById('playbarArtist');
+        const likeBtn = document.getElementById('likeBtn');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        const repeatBtn = document.getElementById('repeatBtn');
+        const progressBar = document.getElementById('progressBar');
+        const currentTimeSpan = document.getElementById('currentTime');
+        const durationSpan = document.getElementById('duration');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeIcon = document.getElementById('volumeIcon');
+        const miniNowPlaying = document.getElementById('miniNowPlaying');
+        const friendsActivityDots = document.getElementById('friendsActivityDots');
+        const friendsModal = document.getElementById('friendsModal');
+        const friendsActivityList = document.getElementById('friendsActivityList');
+
+        // ----- Profile Management -----
+        let profile = JSON.parse(localStorage.getItem('beatflow_profile')) || {
+            name: 'Guest User',
+            email: 'guest@example.com',
+            picture: ''
+        };
+        const profileAvatar = document.getElementById('profileAvatar');
+        const profileName = document.getElementById('profileName');
+        const profileEmail = document.getElementById('profileEmail');
+        const headerProfileImg = document.getElementById('headerProfileImg');
+        const headerUserIcon = document.getElementById('headerUserIcon');
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        const profileModal = document.getElementById('profileModal');
+        const profileNameInput = document.getElementById('profileNameInput');
+        const profileEmailInput = document.getElementById('profileEmailInput');
+        const profileImageInput = document.getElementById('profileImageInput');
+        const profilePreview = document.getElementById('profilePreview');
+        const cancelProfileBtn = document.getElementById('cancelProfileBtn');
+        const saveProfileBtn = document.getElementById('saveProfileBtn');
+
+        function updateProfileUI() {
+            profileName.textContent = profile.name;
+            profileEmail.textContent = profile.email;
+            if (profile.picture) {
+                profileAvatar.src = profile.picture;
+                headerProfileImg.src = profile.picture;
+                headerProfileImg.style.display = 'inline-block';
+                headerUserIcon.style.display = 'none';
+            } else {
+                profileAvatar.removeAttribute('src');
+                headerProfileImg.removeAttribute('src');
+                headerProfileImg.style.display = 'none';
+                headerUserIcon.style.display = 'inline-block';
+            }
+        }
+        updateProfileUI();
+
+        editProfileBtn.addEventListener('click', () => {
+            profileNameInput.value = profile.name;
+            profileEmailInput.value = profile.email;
+            profilePreview.src = profile.picture || '';
+            profileModal.classList.add('active');
+        });
+
+        profileImageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => profilePreview.src = event.target.result;
+                reader.readAsDataURL(file);
+            }
+        });
+
+        cancelProfileBtn.addEventListener('click', () => profileModal.classList.remove('active'));
+        saveProfileBtn.addEventListener('click', () => {
+            const newName = profileNameInput.value.trim();
+            const newEmail = profileEmailInput.value.trim();
+            if (newName) profile.name = newName;
+            if (newEmail) profile.email = newEmail;
+            if (profilePreview.src && profilePreview.src.startsWith('data:')) profile.picture = profilePreview.src;
+            localStorage.setItem('beatflow_profile', JSON.stringify(profile));
+            updateProfileUI();
+            profileModal.classList.remove('active');
+            showToast('Profile updated');
+        });
+
+        // ----- Friends & Chat System -----
+        // All registered users (simulated)
+        const allUsers = ['anna', 'joe', 'ravi', 'divya', 'karthik', 'priya', 'arjun'];
+        // Current user's friends list
+        let friendsList = JSON.parse(localStorage.getItem('beatflow_friends')) || ['anna', 'joe']; // default friends
+        // Chat messages
+        let chatMessages = JSON.parse(localStorage.getItem('beatflow_chat')) || [];
+
+        // Render friends activity sidebar
+        function renderFriendsActivity() {
+            if (friendsList.length === 0) {
+                friendsActivityList.innerHTML = '<div class="activity-item" style="justify-content:center; color:var(--text-muted);">No friends yet</div>';
+                return;
+            }
+            let html = '';
+            friendsList.slice(0, 5).forEach(friend => {
+                // Random status for demo
+                const status = Math.random() > 0.5 ? 'Listening to music' : 'Online';
+                html += `
+                    <div class="activity-item clickable" data-friend="${friend}">
+                        <div class="activity-avatar">${friend[0].toUpperCase()}</div>
+                        <div class="activity-detail">
+                            <div class="activity-name">${friend}</div>
+                            <div class="activity-desc">${status}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            friendsActivityList.innerHTML = html;
+        }
+        renderFriendsActivity();
+
+        // Friends modal tabs
+        const modalTabs = document.querySelectorAll('.modal-tab');
+        const tabContents = document.querySelectorAll('.modal-tab-content');
+        modalTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                modalTabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
+            });
+        });
+
+        // Friends list in modal
+        const friendListEl = document.getElementById('friendList');
+        function renderFriendList() {
+            if (friendsList.length === 0) {
+                friendListEl.innerHTML = '<li style="text-align:center; color:var(--text-muted);">No friends added</li>';
+                return;
+            }
+            friendListEl.innerHTML = friendsList.map(friend => `
+                <li class="friend-item">
+                    <div class="friend-avatar"></div>
+                    <span class="friend-name">${friend}</span>
+                    <span class="friend-status">Online</span>
+                </li>
+            `).join('');
+        }
+        renderFriendList();
+
+        // Add friend
+        document.getElementById('addFriendBtn').addEventListener('click', () => {
+            const input = document.getElementById('addFriendInput');
+            const username = input.value.trim().toLowerCase();
+            if (!username) { showToast('Enter a username'); return; }
+            if (!allUsers.includes(username)) {
+                showToast('User not found');
+                return;
+            }
+            if (friendsList.includes(username)) {
+                showToast('Already a friend');
+                return;
+            }
+            friendsList.push(username);
+            localStorage.setItem('beatflow_friends', JSON.stringify(friendsList));
+            renderFriendList();
+            renderFriendsActivity();
+            input.value = '';
+            showToast(`Friend added: ${username}`);
+        });
+
+        // Invite link copy
+        document.getElementById('copyInviteBtn').addEventListener('click', () => {
+            navigator.clipboard.writeText(document.getElementById('inviteLink').textContent).then(() => {
+                showToast('Invite link copied!');
+            });
+        });
+
+        // Chat
+        const chatMessagesEl = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const chatSendBtn = document.getElementById('chatSendBtn');
+
+        function renderChat() {
+            chatMessagesEl.innerHTML = chatMessages.map(msg => `
+                <div class="chat-message ${msg.sender === profile.name ? 'own' : ''}">
+                    <strong>${msg.sender}:</strong> ${msg.text}
+                </div>
+            `).join('');
+            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+        }
+        renderChat();
+
+        function addChatMessage(text) {
+            const msg = { sender: profile.name, text, timestamp: Date.now() };
+            chatMessages.push(msg);
+            if (chatMessages.length > 50) chatMessages.shift();
+            localStorage.setItem('beatflow_chat', JSON.stringify(chatMessages));
+            renderChat();
+        }
+
+        chatSendBtn.addEventListener('click', () => {
+            const text = chatInput.value.trim();
+            if (!text) return;
+            addChatMessage(text);
+            chatInput.value = '';
+        });
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                chatSendBtn.click();
+            }
+        });
+
+        // Sync chat across tabs
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'beatflow_chat') {
+                chatMessages = JSON.parse(e.newValue) || [];
+                renderChat();
+            }
+            if (e.key === 'beatflow_friends') {
+                friendsList = JSON.parse(e.newValue) || [];
+                renderFriendList();
+                renderFriendsActivity();
+            }
+        });
+
+        // Open friends modal on three dots click
+        friendsActivityDots.addEventListener('click', () => {
+            friendsModal.classList.add('active');
+        });
+
+        // Close modal when clicking outside
+        friendsModal.addEventListener('click', (e) => {
+            if (e.target === friendsModal) {
+                friendsModal.classList.remove('active');
+            }
+        });
+
+        // ----- Song Data -----
+        const songs80s = [
+            { title: "Raaja Raajathi", artist: "Ilaiyaraaja, S. Janaki" },
+            { title: "Thenpandi Cheemayile", artist: "Ilaiyaraaja, Kamal Haasan" },
+            { title: "Oru Kili Uruguthu", artist: "S. P. Balasubrahmanyam, S. Janaki" },
+            { title: "Kaatril Endhan Geetham", artist: "S. P. Balasubrahmanyam, S. Janaki" },
+            { title: "Nila Adhu Vaanathu", artist: "K. J. Yesudas" },
+            { title: "Poove Sempoove", artist: "S. P. Balasubrahmanyam, K.S. Chithra" },
+            { title: "Raja Raja Cholan", artist: "K. J. Yesudas" },
+            { title: "Aayiram Malargale", artist: "S. P. Balasubrahmanyam" },
+            { title: "Muthumani Muthumani", artist: "S. P. Balasubrahmanyam, S. Janaki" },
+            { title: "Chinna Chinna Vanna Kuyil", artist: "S. P. Balasubrahmanyam" },
+            { title: "Vaa Vaa Pakkam Vaa", artist: "S. P. Balasubrahmanyam, S. Janaki" },
+            { title: "Oru Iniya Manathu", artist: "S. P. Balasubrahmanyam, S. Janaki" },
+            { title: "Deepam Oli Vaaneri", artist: "K. J. Yesudas" },
+            { title: "Kuzhaloodhum Kannanukku", artist: "S. Janaki" },
+            { title: "En Jodi Manja Kuruvi", artist: "Ilaiyaraaja, S. Janaki" }
+        ];
+
+        const songs90s = [
+            { title: "Kadhal Rojave", artist: "S. P. Balasubrahmanyam, Swarnalatha" },
+            { title: "Anjali Anjali", artist: "S. P. Balasubrahmanyam, K.S. Chithra" },
+            { title: "Ennavale Adi Ennavale", artist: "P. Unnikrishnan" },
+            { title: "Mukkala Mukkabla", artist: "Mano, Swarnalatha" },
+            { title: "Oruvan Oruvan", artist: "P. Unnikrishnan, Sujatha" },
+            { title: "Sundari", artist: "S. P. Balasubrahmanyam" },
+            { title: "Kalluri Saalai", artist: "Hariharan, Mahalakshmi Iyer" },
+            { title: "Poo Pookkum Osai", artist: "M. M. A. Iniyavan, Sujatha" },
+            { title: "Malargale Malargale", artist: "Hariharan, Mahalakshmi Iyer" },
+            { title: "Roja Poonthottam", artist: "S. P. Balasubrahmanyam, Sujatha" },
+            { title: "Kadhal Kaditham", artist: "S. P. Balasubrahmanyam, Swarnalatha" },
+            { title: "Thanga Thamarai", artist: "S. P. Balasubrahmanyam" },
+            { title: "En Kadhale", artist: "S. P. Balasubrahmanyam, K.S. Chithra" },
+            { title: "Nenjinile", artist: "S. P. Balasubrahmanyam" },
+            { title: "Kulu Kulu", artist: "Mano, Swarnalatha" }
+        ];
+
+        const songs2000s = [
+            { title: "Munbe Vaa", artist: "A.R. Rahman, Shreya Ghoshal" },
+            { title: "Aaromale", artist: "Alphons Joseph" },
+            { title: "Evano Oruvan", artist: "Swarnalatha" },
+            { title: "Kadhal Anukkal", artist: "Chinmayi, P. Unnikrishnan" },
+            { title: "New York Nagaram", artist: "A.R. Rahman, Javed Ali" },
+            { title: "Oru Naalil", artist: "A.R. Rahman, Bombay Jayashri" },
+            { title: "Pudhu Vellai Mazhai", artist: "A.R. Rahman, Sujatha" },
+            { title: "Vaaji Vaaji", artist: "Madhushree, Hariharan" },
+            { title: "Kannamoochi", artist: "A.R. Rahman, Chinmayi" },
+            { title: "Enna Solla", artist: "A.R. Rahman, Shreya Ghoshal" },
+            { title: "Yaaro Yar Aval", artist: "A.R. Rahman, Bombay Jayashri" },
+            { title: "Suttum Vizhi", artist: "A.R. Rahman, Sriram" },
+            { title: "Vaseegara", artist: "Bombay Jayashri" },
+            { title: "Un Samayal", artist: "A.R. Rahman, Benny Dayal" },
+            { title: "Nenje Nenje", artist: "A.R. Rahman, Mahalakshmi Iyer" }
+        ];
+
+        const forYouSongs = [
+            { title: "Aalaporaan Thamizhan", artist: "A.R. Rahman, Karthik" },
+            { title: "Kaattumalli", artist: "Ilaiyaraaja, Ananya Bhat" },
+            { title: "Arabic Kuthu", artist: "Anirudh, Jonita Gandhi" },
+            { title: "Thenmozhi", artist: "Santhosh Narayanan, Sireesha" },
+            { title: "Vaathi Coming", artist: "Anirudh, Gana Balachandar" }
+        ];
+
+        const allSongs = [...songs80s, ...songs90s, ...songs2000s];
+
+        // Artist data
+        const artists = {
+            '80s': [
+                { name: 'Ilaiyaraaja', img: 'https://picsum.photos/seed/ilaiyaraaja/70/70' },
+                { name: 'S. P. Balasubrahmanyam', img: 'https://picsum.photos/seed/spb/70/70' },
+                { name: 'K. J. Yesudas', img: 'https://picsum.photos/seed/yesudas/70/70' },
+                { name: 'S. Janaki', img: 'https://picsum.photos/seed/sjanaki/70/70' },
+                { name: 'Kamal Haasan', img: 'https://picsum.photos/seed/kamal/70/70' }
+            ],
+            '90s': [
+                { name: 'A.R. Rahman', img: 'https://picsum.photos/seed/arr/70/70' },
+                { name: 'Hariharan', img: 'https://picsum.photos/seed/hariharan/70/70' },
+                { name: 'Swarnalatha', img: 'https://picsum.photos/seed/swarnalatha/70/70' },
+                { name: 'P. Unnikrishnan', img: 'https://picsum.photos/seed/unnikrishnan/70/70' },
+                { name: 'Mano', img: 'https://picsum.photos/seed/mano/70/70' }
+            ],
+            '2000s': [
+                { name: 'Anirudh', img: 'https://picsum.photos/seed/anirudh/70/70' },
+                { name: 'Shreya Ghoshal', img: 'https://picsum.photos/seed/shreya/70/70' },
+                { name: 'Chinmayi', img: 'https://picsum.photos/seed/chinmayi/70/70' },
+                { name: 'Benny Dayal', img: 'https://picsum.photos/seed/benny/70/70' },
+                { name: 'Javed Ali', img: 'https://picsum.photos/seed/javed/70/70' }
+            ]
+        };
+
+        // Combine all artists for the Artists view
+        const allArtists = [
+            ...artists['80s'].map(a => ({ ...a, era: '80s' })),
+            ...artists['90s'].map(a => ({ ...a, era: '90s' })),
+            ...artists['2000s'].map(a => ({ ...a, era: '2000s' }))
+        ];
+
+        // Current playlist and playback state
+        let currentPlaylist = forYouSongs;
+        let currentIndex = 4; // Vaathi Coming
+        let isPlaying = false;
+        let currentTime = 0;
+        let duration = 225; // seconds (3:45)
+        let progressInterval = null;
+        let volume = 70;
+        let shuffle = false;
+        let repeat = false;
+        let originalPlaylist = [...forYouSongs];
+        let shuffledPlaylist = [];
+        let shuffleIndex = 0;
+
+        // Liked songs
+        let likedSongs = JSON.parse(localStorage.getItem('beatflow_likedSongs')) || [];
+        // User playlists
+        let userPlaylists = JSON.parse(localStorage.getItem('beatflow_playlists')) || [];
+
+        // Helper: consistent image based on song title
+        function getImageForSong(song, index) {
+            const seed = song.title.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || index;
+            return {
+                thumbUrl: `https://picsum.photos/seed/${seed}/40/40`,
+                fullUrl: `https://picsum.photos/seed/${seed}/48/48`
+            };
+        }
+
+        // Update playbar UI with current song
+        function updatePlaybar(song, imageUrl) {
+            playbarTrack.textContent = song.title;
+            playbarArtist.textContent = song.artist;
+            playbarThumb.style.backgroundImage = `url('${imageUrl}')`;
+            const liked = likedSongs.some(s => s.title === song.title && s.artist === song.artist);
+            likeBtn.className = liked ? 'fas fa-heart like-btn clickable liked' : 'far fa-heart like-btn clickable';
+            currentTime = 0;
+            progressBar.value = 0;
+            currentTimeSpan.textContent = '0:00';
+        }
+
+        // Build song row HTML
+        function buildSongRow(song, index) {
+            const images = getImageForSong(song, index);
+            return `<div class="release-row clickable song-row" data-song-title="${song.title}" data-song-artist="${song.artist}" data-thumb-url="${images.thumbUrl}" data-full-url="${images.fullUrl}">
+                <div class="cover-img" style="background-image:url('${images.thumbUrl}')"></div>
+                <div class="release-info"><div class="release-title">${song.title}</div><div class="release-artist">${song.artist}</div></div>
+                <span class="release-badge"><i class="far fa-clock"></i> 3:45</span>
+            </div>`;
+        }
+
+        // Render main view with search bar
+        function renderView(songsArray, viewTitle) {
+            currentPlaylist = songsArray;
+            originalPlaylist = [...songsArray];
+            shuffledPlaylist = shuffleArray([...songsArray]);
+            shuffleIndex = 0;
+
+            const currentSong = { title: playbarTrack.textContent, artist: playbarArtist.textContent };
+            const idx = songsArray.findIndex(s => s.title === currentSong.title && s.artist === currentSong.artist);
+            currentIndex = idx !== -1 ? idx : 0;
+
+            const searchBarHTML = `
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search song, artist, album...">
+                    <button class="voice-btn clickable" id="voiceSearchBtn"><i class="fas fa-microphone"></i></button>
+                </div>
+            `;
+            let html = searchBarHTML;
+            html += `<div><div class="section-header">${viewTitle} <i class="fas fa-chevron-right clickable" data-action="Expand ${viewTitle}"></i></div>`;
+            html += `<div class="release-list" id="songListContainer">`;
+            songsArray.forEach((song, index) => html += buildSongRow(song, index));
+            html += `</div></div>`;
+
+            mainContent.innerHTML = html;
+            attachVoiceHandler();
+            attachSearchHandler();
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // Render all artists grid
+        function renderAllArtists() {
+            let html = `<div class="section-header">Tamil Artists</div><div class="artist-grid">`;
+            allArtists.forEach((a, index) => {
+                html += `<div class="artist-card clickable" data-artist="${a.name}" data-era="${a.era}">
+                    <div class="artist-avatar" style="background-image:url('${a.img}')"></div>
+                    <div class="artist-name">${a.name}</div><div class="artist-era">${a.era}</div>
+                </div>`;
+            });
+            html += `</div>`;
+            mainContent.innerHTML = html;
+        }
+
+        // Search filter
+        function filterSongs(term) {
+            const container = document.getElementById('songListContainer');
+            if (!container) return;
+            const rows = container.querySelectorAll('.song-row');
+            rows.forEach(row => {
+                const title = row.dataset.songTitle.toLowerCase();
+                const artist = row.dataset.songArtist.toLowerCase();
+                row.style.display = (title.includes(term) || artist.includes(term) || term === '') ? 'flex' : 'none';
+            });
+        }
+
+        function attachSearchHandler() {
+            const input = document.getElementById('searchInput');
+            if (!input) return;
+            const newInput = input.cloneNode(true);
+            input.parentNode.replaceChild(newInput, input);
+            newInput.addEventListener('input', (e) => filterSongs(e.target.value.toLowerCase().trim()));
+        }
+
+        // Global search across all songs
+        function searchAllSongs(term) {
+            term = term.toLowerCase().trim();
+            if (term === '') {
+                renderView(forYouSongs, 'For you');
+                return;
+            }
+            const results = allSongs.filter(song => 
+                song.title.toLowerCase().includes(term) || 
+                song.artist.toLowerCase().includes(term)
+            );
+            const searchBarHTML = `
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search song, artist, album..." value="${term}">
+                    <button class="voice-btn clickable" id="voiceSearchBtn"><i class="fas fa-microphone"></i></button>
+                </div>
+            `;
+            if (results.length === 0) {
+                mainContent.innerHTML = searchBarHTML + `
+                    <div class="section-header">Search Results</div>
+                    <p style="text-align:center; padding:20px;">No songs found for "${term}"</p>
+                `;
+                attachVoiceHandler();
+                attachSearchHandler();
+                return;
+            }
+            currentPlaylist = results;
+            currentIndex = 0;
+            let html = searchBarHTML;
+            html += `<div><div class="section-header">Search Results for "${term}"</div>`;
+            html += `<div class="release-list" id="songListContainer">`;
+            results.forEach((song, index) => html += buildSongRow(song, index));
+            html += `</div></div>`;
+            mainContent.innerHTML = html;
+            attachVoiceHandler();
+            attachSearchHandler();
+            const firstRow = document.querySelector('.song-row');
+            if (firstRow) setTimeout(() => firstRow.click(), 100);
+        }
+
+        // Voice recognition
+        let recognition = null;
+        function initVoice() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return null;
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            try { return new SpeechRecognition(); } catch { return null; }
+        }
+
+        function attachVoiceHandler() {
+            const btn = document.getElementById('voiceSearchBtn');
+            if (!btn) return;
+            btn.replaceWith(btn.cloneNode(true));
+            const newBtn = document.getElementById('voiceSearchBtn');
+            newBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (!recognition) recognition = initVoice();
+                if (!recognition) { showToast("Voice not supported in this browser"); return; }
+                recognition.lang = 'en-IN';
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.onstart = () => newBtn.classList.add('listening');
+                recognition.onend = () => newBtn.classList.remove('listening');
+                recognition.onerror = (event) => {
+                    newBtn.classList.remove('listening');
+                    showToast("Voice error: " + event.error);
+                };
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    const input = document.getElementById('searchInput');
+                    if (input) {
+                        input.value = transcript;
+                        searchAllSongs(transcript);
+                    }
+                };
+                try { recognition.start(); } catch (ex) { showToast("Could not start voice recognition"); }
+            });
+        }
+
+        // Toast
+        function showToast(msg) {
+            toast.textContent = '🎵 ' + msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // Playback simulation
+        function startProgress() {
+            if (progressInterval) clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                if (isPlaying && currentTime < duration) {
+                    currentTime++;
+                    progressBar.value = (currentTime / duration) * 100;
+                    currentTimeSpan.textContent = formatTime(currentTime);
+                } else if (currentTime >= duration) {
+                    if (repeat) {
+                        currentTime = 0;
+                    } else {
+                        nextBtn.click();
+                    }
+                }
+            }, 1000);
+        }
+
+        function pausePlayback() {
+            isPlaying = false;
+            playPauseBtn.className = 'fas fa-play-circle clickable';
+            if (progressInterval) clearInterval(progressInterval);
+            progressInterval = null;
+        }
+
+        function playPlayback() {
+            isPlaying = true;
+            playPauseBtn.className = 'fas fa-pause-circle clickable';
+            startProgress();
+        }
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function loadSong(index) {
+            if (index < 0) index = currentPlaylist.length - 1;
+            if (index >= currentPlaylist.length) index = 0;
+            currentIndex = index;
+            if (shuffle && shuffledPlaylist.length > 0) {
+                const currentSong = currentPlaylist[currentIndex];
+                shuffleIndex = shuffledPlaylist.findIndex(s => s.title === currentSong.title && s.artist === currentSong.artist);
+                if (shuffleIndex === -1) shuffleIndex = 0;
+            }
+            const song = currentPlaylist[currentIndex];
+            const img = getImageForSong(song, currentIndex).fullUrl;
+            updatePlaybar(song, img);
+            duration = 225;
+            durationSpan.textContent = formatTime(duration);
+            if (isPlaying) {
+                pausePlayback();
+                playPlayback();
+            } else {
+                currentTime = 0;
+                progressBar.value = 0;
+                currentTimeSpan.textContent = '0:00';
+            }
+        }
+
+        playPauseBtn.addEventListener('click', () => {
+            if (isPlaying) pausePlayback();
+            else playPlayback();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (shuffle) {
+                shuffleIndex = (shuffleIndex - 1 + shuffledPlaylist.length) % shuffledPlaylist.length;
+                const song = shuffledPlaylist[shuffleIndex];
+                const idx = currentPlaylist.findIndex(s => s.title === song.title && s.artist === song.artist);
+                if (idx !== -1) currentIndex = idx;
+                loadSong(currentIndex);
+            } else {
+                loadSong(currentIndex - 1);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (shuffle) {
+                shuffleIndex = (shuffleIndex + 1) % shuffledPlaylist.length;
+                const song = shuffledPlaylist[shuffleIndex];
+                const idx = currentPlaylist.findIndex(s => s.title === song.title && s.artist === song.artist);
+                if (idx !== -1) currentIndex = idx;
+                loadSong(currentIndex);
+            } else {
+                loadSong(currentIndex + 1);
+            }
+        });
+
+        progressBar.addEventListener('input', (e) => {
+            const newTime = (e.target.value / 100) * duration;
+            currentTime = Math.round(newTime);
+            currentTimeSpan.textContent = formatTime(currentTime);
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            volume = e.target.value;
+            volumeIcon.className = volume == 0 ? 'fas fa-volume-off clickable' : volume < 50 ? 'fas fa-volume-low clickable' : 'fas fa-volume-high clickable';
+        });
+
+        shuffleBtn.addEventListener('click', () => {
+            shuffle = !shuffle;
+            shuffleBtn.style.color = shuffle ? '#8a6ecf' : 'var(--icon-color)';
+            if (shuffle) {
+                shuffledPlaylist = shuffleArray(currentPlaylist);
+                const currentSong = currentPlaylist[currentIndex];
+                shuffleIndex = shuffledPlaylist.findIndex(s => s.title === currentSong.title && s.artist === currentSong.artist);
+                if (shuffleIndex === -1) shuffleIndex = 0;
+                showToast('Shuffle on');
+            } else {
+                showToast('Shuffle off');
+            }
+        });
+
+        repeatBtn.addEventListener('click', () => {
+            repeat = !repeat;
+            repeatBtn.style.color = repeat ? '#8a6ecf' : 'var(--icon-color)';
+            showToast(repeat ? 'Repeat one' : 'Repeat off');
+        });
+
+        likeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const currentSong = { title: playbarTrack.textContent, artist: playbarArtist.textContent };
+            const index = likedSongs.findIndex(s => s.title === currentSong.title && s.artist === currentSong.artist);
+            if (index === -1) {
+                likedSongs.push(currentSong);
+                likeBtn.className = 'fas fa-heart like-btn clickable liked';
+                showToast('Added to Liked Songs');
+            } else {
+                likedSongs.splice(index, 1);
+                likeBtn.className = 'far fa-heart like-btn clickable';
+                showToast('Removed from Liked Songs');
+            }
+            localStorage.setItem('beatflow_likedSongs', JSON.stringify(likedSongs));
+        });
+
+        // Navigation
+        document.getElementById('hits80sBtn').addEventListener('click', () => { renderView(songs80s, '80s Hits'); showToast('80s hits'); });
+        document.getElementById('hits90sBtn').addEventListener('click', () => { renderView(songs90s, '90s Hits'); showToast('90s hits'); });
+        document.getElementById('hits2000sBtn').addEventListener('click', () => { renderView(songs2000s, '2000s Hits'); showToast('2000s hits'); });
+        document.getElementById('forYouBtn').addEventListener('click', () => { renderView(forYouSongs, 'For you'); showToast('For you'); });
+        document.getElementById('likedSongsBtn').addEventListener('click', () => {
+            if (likedSongs.length === 0) mainContent.innerHTML = '<div class="section-header">Liked Songs</div><p>No liked songs yet.</p>';
+            else renderView(likedSongs, 'Liked Songs');
+            showToast('Liked Songs');
+        });
+
+        document.getElementById('artistsBtn').addEventListener('click', () => {
+            renderAllArtists();
+            showToast('Tamil Artists');
+        });
+
+        // Playlist creation modal
+        const playlistModal = document.getElementById('playlistModal');
+        document.getElementById('createPlaylistBtn').addEventListener('click', () => {
+            const songList = allSongs.map((song, idx) => `
+                <div class="modal-song-item">
+                    <input type="checkbox" id="song-${idx}" value="${idx}">
+                    <label for="song-${idx}">${song.title} - ${song.artist}</label>
+                </div>
+            `).join('');
+            document.getElementById('modalSongList').innerHTML = songList;
+            playlistModal.classList.add('active');
+        });
+        document.getElementById('cancelPlaylistBtn').addEventListener('click', () => playlistModal.classList.remove('active'));
+        document.getElementById('savePlaylistBtn').addEventListener('click', () => {
+            const name = document.getElementById('playlistNameInput').value.trim();
+            if (!name) { showToast('Enter playlist name'); return; }
+            const selected = Array.from(document.querySelectorAll('#modalSongList input:checked')).map(cb => allSongs[parseInt(cb.value)]);
+            if (selected.length === 0) { showToast('Select at least one song'); return; }
+            userPlaylists.push({ name, songs: selected });
+            localStorage.setItem('beatflow_playlists', JSON.stringify(userPlaylists));
+            renderUserPlaylists();
+            playlistModal.classList.remove('active');
+            showToast(`Playlist "${name}" created`);
+        });
+
+        function renderUserPlaylists() {
+            const container = document.getElementById('userPlaylistsList');
+            container.innerHTML = userPlaylists.map(p => `<li class="sub-item indent clickable user-playlist" data-playlist="${p.name}"><i class="fas fa-list"></i> ${p.name}</li>`).join('');
+            document.querySelectorAll('.user-playlist').forEach(el => {
+                el.addEventListener('click', () => {
+                    const name = el.dataset.playlist;
+                    const pl = userPlaylists.find(p => p.name === name);
+                    if (pl) renderView(pl.songs, pl.name);
+                });
+            });
+        }
+        renderUserPlaylists();
+
+        // Recent Activity
+        let recentItems = JSON.parse(localStorage.getItem('beatflow_recent')) || [];
+        const recentList = document.getElementById('recentActivityList');
+
+        function renderRecent() {
+            if (recentItems.length === 0) {
+                recentList.innerHTML = '<div class="activity-item" style="justify-content:center; color:var(--text-muted);">No recent activity</div>';
+                return;
+            }
+            let html = '';
+            recentItems.slice(0, 5).forEach(item => {
+                if (item.type === 'song') {
+                    html += `<div class="activity-item clickable recent-song" data-title="${item.title}" data-artist="${item.artist}">
+                        <div class="activity-avatar"><i class="fas fa-music"></i></div>
+                        <div class="activity-detail"><div class="activity-name">${item.title}</div><div class="activity-desc">${item.artist}</div></div>
+                    </div>`;
+                } else if (item.type === 'playlist') {
+                    html += `<div class="activity-item clickable recent-playlist" data-playlist="${item.name}">
+                        <div class="activity-avatar"><i class="fas fa-list"></i></div>
+                        <div class="activity-detail"><div class="activity-name">${item.name}</div><div class="activity-desc">Playlist</div></div>
+                    </div>`;
+                }
+            });
+            recentList.innerHTML = html;
+            document.querySelectorAll('.recent-song').forEach(el => {
+                el.addEventListener('click', () => {
+                    const title = el.dataset.title;
+                    const artist = el.dataset.artist;
+                    const song = allSongs.find(s => s.title === title && s.artist === artist);
+                    if (song) {
+                        const img = getImageForSong(song, 0).fullUrl;
+                        updatePlaybar(song, img);
+                        if (isPlaying) { pausePlayback(); playPlayback(); } 
+                        else { currentTime = 0; progressBar.value = 0; currentTimeSpan.textContent = '0:00'; }
+                        showToast(`${title} — ${artist}`);
+                    }
+                });
+            });
+            document.querySelectorAll('.recent-playlist').forEach(el => {
+                el.addEventListener('click', () => {
+                    const name = el.dataset.playlist;
+                    const pl = userPlaylists.find(p => p.name === name);
+                    if (pl) renderView(pl.songs, pl.name);
+                });
+            });
+        }
+        renderRecent();
+
+        function addRecentSong(song) {
+            recentItems = recentItems.filter(i => !(i.type === 'song' && i.title === song.title && i.artist === song.artist));
+            recentItems.unshift({ type: 'song', title: song.title, artist: song.artist, timestamp: Date.now() });
+            if (recentItems.length > 10) recentItems.pop();
+            localStorage.setItem('beatflow_recent', JSON.stringify(recentItems));
+            renderRecent();
+        }
+
+        function addRecentPlaylist(playlistName) {
+            recentItems = recentItems.filter(i => !(i.type === 'playlist' && i.name === playlistName));
+            recentItems.unshift({ type: 'playlist', name: playlistName, timestamp: Date.now() });
+            if (recentItems.length > 10) recentItems.pop();
+            localStorage.setItem('beatflow_recent', JSON.stringify(recentItems));
+            renderRecent();
+        }
+
+        // Global click for song rows
+        document.body.addEventListener('click', function(e) {
+            const target = e.target.closest('.clickable');
+            if (!target) return;
+            if (target.classList.contains('song-row')) {
+                const title = target.dataset.songTitle;
+                const artist = target.dataset.songArtist;
+                const fullUrl = target.dataset.fullUrl;
+                if (title && artist && fullUrl) {
+                    const idx = currentPlaylist.findIndex(s => s.title === title && s.artist === artist);
+                    if (idx !== -1) currentIndex = idx;
+                    if (shuffle) {
+                        shuffleIndex = shuffledPlaylist.findIndex(s => s.title === title && s.artist === artist);
+                        if (shuffleIndex === -1) shuffleIndex = 0;
+                    }
+                    updatePlaybar({ title, artist }, fullUrl);
+                    if (isPlaying) {
+                        pausePlayback();
+                        playPlayback();
+                    } else {
+                        currentTime = 0;
+                        progressBar.value = 0;
+                        currentTimeSpan.textContent = '0:00';
+                    }
+                    showToast(`${title} — ${artist}`);
+                    addRecentSong({ title, artist });
+                }
+                return;
+            }
+        });
+
+        // Initialize
+        renderView(forYouSongs, "For you");
+        const defaultSong = forYouSongs[4];
+        updatePlaybar(defaultSong, getImageForSong(defaultSong,4).fullUrl);
+        durationSpan.textContent = formatTime(duration);
+        volumeSlider.value = volume;
+        originalPlaylist = [...forYouSongs];
+        shuffledPlaylist = shuffleArray([...forYouSongs]);
+        shuffleIndex = 0;
+
+        // Playbar click to go to track.html
+        miniNowPlaying.addEventListener('click', function() {
+            const currentSong = {
+                title: playbarTrack.textContent,
+                artist: playbarArtist.textContent,
+                thumbUrl: playbarThumb.style.backgroundImage.slice(5, -2)
+            };
+            localStorage.setItem('beatflow_current_song', JSON.stringify(currentSong));
+            window.location.href = 'track.html';
+        });
+    })();
+</script>
+</body>
+</html>
